@@ -67,15 +67,59 @@ def controller(
     speed_action = "ACCELERATE"
 
     # TRIVIAL CASE
-    # Stops the car if sensor/other things not working
-    if not sensor_valid:
+    # Stops the car if sensor/other things not working or emergency stop is activated
+    if not sensor_valid or e_stop:
         return "STRAIGHT", "STOP"
 
-    # IDEAL SITUATION
-    # small/none heading errors don't need to be correct to prevent overfitting
-    if centered and small_heading_error:
-        steering = "STRAIGHT"
-        speed_action = "ACCELERATE"
+    #NEED TO DO????? stop instead of turning at high speeds to prevent car from flipping sideways.
+    # prioritise not hitting obstacles
+    # ASSUMPTION!! : obstacle_distance is the distance from the centre of the front of the car
+    elif obstacle_distance_m <= DANGER_OBSTACLE_M:
+
+        # stop if no safe side
+        if not left_clear and not right_clear:
+            return "STRAIGHT", "STOP"
+
+        # turn left if left is clear
+        elif left_clear and not right_clear:
+            return "LEFT", "SLOW" # NEED TO DO!!!!!! MAYBE STOP INSTEAD? BUT THE CAR MIGHT FLIP OVER
+
+
+        # turn right if right is clear
+        elif right_clear and not left_clear:
+            return "RIGHT", "SLOW"# NEED TO DO!!!!!! MAYBE STOP INSTEAD? BUT THE CAR MIGHT FLIP OVER
+
+        # if both sides clear and deviated to the right then turn left
+        elif (right_clear and left_clear) and lane_offset_m > 0:
+
+            # if car is already pointing to left with large angle, no more steering needed to prevent oversteering
+            if heading_error_deg < -MILD_HEADING_DEG:
+                return "STRAIGHT", "SLOW"
+
+            # if car is not pointed to the left with a relative large angle then turn left immediately
+            else:
+                return "LEFT", "SLOW"
+
+
+        # if both sides clear and deviated to the left then turn right
+        elif (right_clear and left_clear) and lane_offset_m < 0:
+
+            # if car is already pointing to right with large angle, no more steering needed to prevent oversteering
+            if heading_error_deg > MILD_HEADING_DEG:
+                return "STRAIGHT", "SLOW"
+
+            # if car is not pointed to right with large enough angle, turn right immediately
+            else:
+                return "RIGHT", "SLOW"
+
+        # If car is heading straight and on track AND BOTH SIDES ARE CLEAR IF IT GOES DOWN TO ELSE
+        else:
+            return "RIGHT", "SLOW" # NEED TO DO!!!!!!! HERE JUST PICKED A RANDOM DIRECTION TO TURN INSTEAD OF STOPPING CONSIDERING THE CAR IS STILL RACING SO WOULD WANT TO MAINTAIN THE SPEED IF POSSIBLE
+
+
+
+
+
 
     # At high speeds
     elif speed_mps >= HIGH_SPEED_MPS:
@@ -144,10 +188,7 @@ def controller(
             steering = "STRAIGHT"
             speed_action = "SLOW"
 
-    if e_stop:
-        if obstacle_distance_m <= DANGER_OBSTACLE_M:
-            steering = "STRAIGHT"
-            speed_action = "STOP"
+
 
     if heading_error_deg > LARGE_HEADING_DEG or lane_offset_m > LARGE_OFFSET_M:
         steering = "LEFT"
@@ -155,6 +196,12 @@ def controller(
 
     if heading_error_deg < -LARGE_HEADING_DEG or lane_offset_m < -LARGE_OFFSET_M:
         steering = "RIGHT"
+        speed_action = "ACCELERATE"
+
+    # IDEAL SITUATION
+    # small/none heading errors don't need to be correct to prevent overfitting
+    if centered and small_heading_error:
+        steering = "STRAIGHT"
         speed_action = "ACCELERATE"
 
     return steering, speed_action
