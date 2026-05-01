@@ -24,6 +24,8 @@ VALID_SPEED = {"ACCELERATE", "SLOW", "STOP"}
 
 
 def controller(
+
+    # Parameters: inputs of the func
     obstacle_distance_m,
     lane_offset_m,
     heading_error_deg,
@@ -55,28 +57,40 @@ def controller(
 
     HIGH_SPEED_MPS = 3.0
 
+    # A boolean to see if offset is mild or not
     centered = abs(lane_offset_m) <= MILD_OFFSET_M
+
+    # A boolean to see if heading error is mild or not
     small_heading_error = abs(heading_error_deg) <= MILD_HEADING_DEG
 
     steering = "STRAIGHT"
     speed_action = "ACCELERATE"
 
+    # TRIVIAL CASE
+    # Stops the car if sensor/other things not working
     if not sensor_valid:
         return "STRAIGHT", "STOP"
 
+    # IDEAL SITUATION
+    # small/none heading errors don't need to be correct to prevent overfitting
     if centered and small_heading_error:
         steering = "STRAIGHT"
         speed_action = "ACCELERATE"
 
+    # At high speeds
     elif speed_mps >= HIGH_SPEED_MPS:
+
+        # Car severely deviates to the RIGHT
         if heading_error_deg > LARGE_HEADING_DEG or lane_offset_m > LARGE_OFFSET_M:
             steering = "LEFT"
             speed_action = "SLOW"
 
+        # Car severely deviates to the LEFT
         elif heading_error_deg < -LARGE_HEADING_DEG or lane_offset_m < -LARGE_OFFSET_M:
             steering = "RIGHT"
             speed_action = "SLOW"
 
+    # ASSUMPTION!! : obstacle_distance is the distance from the centre of the front of the car
     elif obstacle_distance_m <= DANGER_OBSTACLE_M:
         if not left_clear and not right_clear:
             steering = "STRAIGHT"
@@ -115,6 +129,7 @@ def controller(
             steering = "RIGHT"
             speed_action = "SLOW"
 
+        #??????? all under obstacle distances????
         elif heading_error_deg > MILD_HEADING_DEG or lane_offset_m > MILD_OFFSET_M:
             steering = "LEFT"
             speed_action = "SLOW"
@@ -123,6 +138,8 @@ def controller(
             steering = "RIGHT"
             speed_action = "SLOW"
 
+
+        #??????? appropriate to all other remaining cases????
         else:
             steering = "STRAIGHT"
             speed_action = "SLOW"
