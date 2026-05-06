@@ -88,14 +88,14 @@ def controller(
     if not sensor_valid or e_stop:
         return "STRAIGHT", "STOP"
 
-    #NEED TO DO????? stop instead of turning at high speeds to prevent car from flipping sideways.
+
     # prioritise not hitting obstacles
     # ASSUMPTION!!: obstacle_distance is the distance from the centre of the front of the car
     elif obstacle_distance_m <= DANGER_OBSTACLE_M:
 
-        # CHANGE 9: We can't avoid a crash at this speed and we would rather have a head-on crash
+        # CHANGE 9: We can't avoid a crash at this speed and we would rather clip the cones on the side rather a head_on crash
         if speed_mps > 3.3:
-            return "STRAIGHT", "STOP"
+            return "LEFT", "STOP"
 
         # stop if no safe side
         elif not left_clear and not right_clear:
@@ -104,7 +104,6 @@ def controller(
         # turn left if left is clear
         elif left_clear and not right_clear:
             # IN VISUALISER LARGE HEADING_DEG WAS NOT ENOUGH TO MAKE THAT TURN WITHOUT HITTING THE OBSTACLE EVEN WITH MILD OBSTACLE DISTANCE
-            # !!! MIGHT NEED TO EVEN STOP TO AVOID HITTING THE OBSTACLE???
             # LIMITATION!!!!! EVEN STOP DID NOT BRAKE THE CAR IN TIME, STILL HITS THE OBSTACLE. WILL HIT THE OBSTACLE AS LONG AS OBSTACLE DISTANCE IS <= DANGER DISTANCE AND SPEED EXCEEDS 3.3
 
             return "LEFT", "STOP"
@@ -123,7 +122,6 @@ def controller(
         elif right_clear and not left_clear:
 
             # IN VISUALISER LARGE HEADING_DEG WAS NOT ENOUGH TO MAKE THAT TURN WITHOUT HITTING THE OBSTACLE EVEN WITH MILD OBSTACLE DISTANCE
-            # !!! MIGHT NEED TO EVEN STOP TO AVOID HITTING THE OBSTACLE???
             # LIMITATION!!!!! EVEN STOP DID NOT BRAKE THE CAR IN TIME, STILL HITS THE OBSTACLE. WILL HIT THE OBSTACLE AS LONG AS OBSTACLE DISTANCE IS <= DANGER DISTANCE AND SPEED EXCEEDS 3.3
 
             return "RIGHT", "STOP"
@@ -140,7 +138,6 @@ def controller(
         elif (right_clear and left_clear) and lane_offset_m > 0:
 
             # IN VISUALISER LARGE HEADING_DEG WAS NOT ENOUGH TO MAKE THAT TURN WITHOUT HITTING THE OBSTACLE EVEN WITH MILD OBSTACLE DISTANCE
-            # !!! MIGHT NEED TO EVEN STOP TO AVOID HITTING THE OBSTACLE???
             # LIMITATION!!!!! EVEN STOP DID NOT BRAKE THE CAR IN TIME, STILL HITS THE OBSTACLE. WILL HIT THE OBSTACLE AS LONG AS OBSTACLE DISTANCE IS <= DANGER DISTANCE AND SPEED EXCEEDS 3.3
             return "LEFT", "STOP"
 
@@ -161,7 +158,6 @@ def controller(
         elif (right_clear and left_clear) and lane_offset_m < 0:
 
             # IN VISUALISER LARGE HEADING_DEG WAS NOT ENOUGH TO MAKE THAT TURN WITHOUT HITTING THE OBSTACLE EVEN WITH MILD OBSTACLE DISTANCE
-            # !!! MIGHT NEED TO EVEN STOP TO AVOID HITTING THE OBSTACLE???
             # LIMITATION!!!!! EVEN STOP DID NOT BRAKE THE CAR IN TIME, STILL HITS THE OBSTACLE. WILL HIT THE OBSTACLE AS LONG AS OBSTACLE DISTANCE IS <= DANGER DISTANCE AND SPEED EXCEEDS 3.3
             return "RIGHT", "STOP"
 
@@ -178,7 +174,6 @@ def controller(
         elif (right_clear and left_clear) and heading_error_deg > 0:
 
             # IN VISUALISER LARGE HEADING_DEG WAS NOT ENOUGH TO MAKE THAT TURN WITHOUT HITTING THE OBSTACLE EVEN WITH MILD OBSTACLE DISTANCE
-            # !!! MIGHT NEED TO EVEN STOP TO AVOID HITTING THE OBSTACLE???
             # LIMITATION!!!!! EVEN STOP DID NOT BRAKE THE CAR IN TIME, STILL HITS THE OBSTACLE. WILL HIT THE OBSTACLE AS LONG AS OBSTACLE DISTANCE IS <= DANGER DISTANCE AND SPEED EXCEEDS 3.3
             return "RIGHT", "STOP"
 
@@ -196,7 +191,6 @@ def controller(
         elif (right_clear and left_clear) and heading_error_deg < 0:
 
             # IN VISUALISER LARGE HEADING_DEG WAS NOT ENOUGH TO MAKE THAT TURN WITHOUT HITTING THE OBSTACLE EVEN WITH MILD OBSTACLE DISTANCE
-            # !!! MIGHT NEED TO EVEN STOP TO AVOID HITTING THE OBSTACLE???
             # LIMITATION!!!!! EVEN STOP DID NOT BRAKE THE CAR IN TIME, STILL HITS THE OBSTACLE. WILL HIT THE OBSTACLE AS LONG AS OBSTACLE DISTANCE IS <= DANGER DISTANCE AND SPEED EXCEEDS 3.3
             return "LEFT", "STOP"
 
@@ -209,9 +203,8 @@ def controller(
             #     return "RIGHT", "SLOW"
 
         # If car is heading straight and on track AND BOTH SIDES ARE CLEAR IF IT GOES DOWN TO ELSE
-        # CHANGE 7: INSTEAD OF GOING OFF LEFT LIKE THE ORIGINAL WE DON'T STEER. BECAUSE HERE THE WORST CASE IS THAT WE CRASH AND A HEAD-ON CRASH WILL BE A LOT MORE IDEAL THAN A CRASH ON THE SIDE (SAFER, LESS LIKELY TO DAMAGE THE CAR)
         else:
-            return "STRAIGHT", "STOP" # NEED TO DO!!!!!!! HERE JUST PICKED A RANDOM DIRECTION TO TURN INSTEAD OF STOPPING CONSIDERING THE CAR IS STILL RACING SO WOULD WANT TO MAINTAIN THE SPEED IF POSSIBLE
+            return "LEFT", "STOP"
 
     # take actions to steer away from obstacles early to minimise speed reduction
     elif obstacle_distance_m <= CAUTION_OBSTACLE_M:
@@ -223,7 +216,6 @@ def controller(
         elif left_clear and not right_clear:
 
             # IN VISUALISER LARGE HEADING_DEG WAS NOT ENOUGH TO MAKE THAT TURN WITHOUT HITTING THE OBSTACLE EVEN WITH MILD OBSTACLE DISTANCE
-            # !!! MIGHT NEED TO EVEN STOP TO AVOID HITTING THE OBSTACLE???
             return "LEFT", "SLOW"
 
             # # If car is already steered towards the left at a big angle
@@ -238,7 +230,6 @@ def controller(
         elif right_clear and not left_clear:
 
             # IN VISUALISER LARGE HEADING_DEG WAS NOT ENOUGH TO MAKE THAT TURN WITHOUT HITTING THE OBSTACLE EVEN WITH MILD OBSTACLE DISTANCE
-            # !!! MIGHT NEED TO EVEN STOP TO AVOID HITTING THE OBSTACLE???
             return "RIGHT", "SLOW"
 
             # # If car is already steered towards the RIGHT at a big angle
@@ -253,7 +244,6 @@ def controller(
         elif (right_clear and left_clear) and lane_offset_m > 0:
 
             # IN VISUALISER LARGE HEADING_DEG WAS NOT ENOUGH TO MAKE THAT TURN WITHOUT HITTING THE OBSTACLE EVEN WITH MILD OBSTACLE DISTANCE
-            # !!! MIGHT NEED TO EVEN STOP TO AVOID HITTING THE OBSTACLE???
             return "LEFT", "SLOW"
 
             # # if car is already pointing to left with large angle, no more steering needed to prevent oversteering
@@ -269,7 +259,6 @@ def controller(
         elif (right_clear and left_clear) and lane_offset_m < 0:
 
             # IN VISUALISER LARGE HEADING_DEG WAS NOT ENOUGH TO MAKE THAT TURN WITHOUT HITTING THE OBSTACLE EVEN WITH MILD OBSTACLE DISTANCE
-            # !!! MIGHT NEED TO EVEN STOP TO AVOID HITTING THE OBSTACLE???
             return "RIGHT", "SLOW"
 
             # # if car is already pointing to right with large angle, no more steering needed to prevent oversteering
@@ -284,7 +273,6 @@ def controller(
         elif (right_clear and left_clear) and heading_error_deg > 0:
 
             # IN VISUALISER LARGE HEADING_DEG WAS NOT ENOUGH TO MAKE THAT TURN WITHOUT HITTING THE OBSTACLE EVEN WITH MILD OBSTACLE DISTANCE
-            # !!! MIGHT NEED TO EVEN STOP TO AVOID HITTING THE OBSTACLE???
             return "RIGHT", "SLOW"
 
             # # if car is already pointing to left with large angle, no more steering needed to prevent oversteering
@@ -300,7 +288,6 @@ def controller(
         elif (right_clear and left_clear) and heading_error_deg < 0:
 
             # IN VISUALISER LARGE HEADING_DEG WAS NOT ENOUGH TO MAKE THAT TURN WITHOUT HITTING THE OBSTACLE EVEN WITH MILD OBSTACLE DISTANCE
-            # !!! MIGHT NEED TO EVEN STOP TO AVOID HITTING THE OBSTACLE???
             return "LEFT", "SLOW"
 
             # # if car is already pointing to right with large angle, no more steering needed to prevent oversteering
@@ -313,7 +300,7 @@ def controller(
 
         # If car is heading straight and on track AND BOTH SIDES ARE CLEAR IF IT GOES DOWN TO ELSE
         else:
-            return "RIGHT", "SLOW"  # NEED TO DO!!!!!!! HERE JUST PICKED A RANDOM DIRECTION TO TURN INSTEAD OF STOPPING CONSIDERING THE CAR IS STILL RACING SO WOULD WANT TO MAINTAIN THE SPEED IF POSSIBLE
+            return "RIGHT", "SLOW"
 
     # Correct car back on track by reducing lane offset
     # !!!! ASSUMPTION: no safe side means there are some form of obstacles on both sides of the car and car can't turn to either side otherwise will hit obstacle
@@ -363,7 +350,7 @@ def controller(
 
             # if car is already pointing to left with MILD angle, no more steering needed to prevent oversteering
             if (heading_error_deg < -MILD_HEADING_DEG):
-                return "STRAIGHT", "ACCELERATE" #!!!!! NEED TO DO no speed command instead to maintain speed since it's going straight anyways?
+                return "STRAIGHT", "ACCELERATE"
 
             # if car is not pointed to the left with a relative large angle then turn left immediately
             else:
@@ -372,7 +359,7 @@ def controller(
         else:
             # if car is already pointing to left with MILD angle, no more steering needed to prevent oversteering
             if (heading_error_deg < -MILD_HEADING_DEG):
-                return "STRAIGHT", "SLOW"  # !!!!! NEED TO DO no speed command instead to maintain speed since it's going straight anyways?
+                return "STRAIGHT", "SLOW"
 
             # if car is not pointed to the left with a relative large angle then turn left immediately
             else:
@@ -410,7 +397,7 @@ def controller(
         if speed_mps < HIGH_SPEED_MPS:
             # if car is already pointing to RIGHT with MILD angle, no more steering needed to prevent oversteering
             if (heading_error_deg > MILD_HEADING_DEG) and (heading_error_deg > LARGE_HEADING_DEG):
-                return "STRAIGHT", "ACCELERATE"  # !!!!! NEED TO DO no speed command instead to maintain speed since it's going straight anyways?
+                return "STRAIGHT", "ACCELERATE"
 
             # if car is not pointed to the RIGHT with a relative large angle then turn RIGHT immediately
             else:
@@ -420,7 +407,7 @@ def controller(
         else:
             # if car is already pointing to RIGHT with MILD angle, no more steering needed to prevent oversteering
             if (heading_error_deg > MILD_HEADING_DEG) and (heading_error_deg > LARGE_HEADING_DEG):
-                return "STRAIGHT", "SLOW"  # !!!!! NEED TO DO no speed command instead to maintain speed since it's going straight anyways?
+                return "STRAIGHT", "SLOW"
 
             # if car is not pointed to the RIGHT with a relative large angle then turn RIGHT immediately
             else:
@@ -459,12 +446,12 @@ def controller(
     # car is MILDLY steered towards the right
     elif not small_heading_error and heading_error_deg > 0:
         # steer left to get back to straight
-        return "LEFT", "SLOW" #!!!!! NEED TO DO HEADING ERROR IS ONLY MILD STEER LEFT NEEDED???
+        return "LEFT", "SLOW"
 
     # car is MILDLY steered towards the left
     elif heading_error_deg < 0 and not small_heading_error:
         # steer right to get back to straight
-        return "RIGHT", "SLOW" #!!!!! NEED TO DO HEADING ERROR IS ONLY MILD STEER LEFT NEEDED???
+        return "RIGHT", "SLOW" 
 
 
     # IDEAL SITUATION
